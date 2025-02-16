@@ -1,0 +1,32 @@
+name: "Build Shared Library Binaries"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: "Build"
+    strategy:
+      matrix:
+        build:
+          - os: "windows-latest"
+            target: "x86_64-pc-windows-msvc"
+            filename: "kb10uy-zatools-native"
+          - os: "ubuntu-latest"
+            target: "x86_64-unknown-linux-gnu"
+          - os: "macos-latest"
+            target: "aarch64-apple-darwin"
+          # うるせ～！知らね～！
+          # - os: "macos-latest"
+          #   target: "x86_64-apple-darwin"
+
+    runs-on: ${{ matrix.build.os }}
+    steps:
+      - uses: "actions/checkout@v4"
+      - uses: "actions-rust-lang/setup-rust-toolchain@v1"
+        with:
+          targets: ${{ matrix.build.target }}
+      - uses: "Swatinem/rust-cache@v2"
+
+      - run: "cargo build --release --target=${{ matrix.build.target }}"
+      - run: "ls -la target/${{ matrix.build.target }}/release"
